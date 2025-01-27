@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="icu.pymiliblog.teachingmanagementplatform.mapper.NotificationMapper">
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="icu.pymiliblog.teachingmanagementplatform.pojo.notification.NotificationPojo">
+        <id column="id" property="id"/>
+        <result column="title" property="content" />
+        <result column="img_url" property="imgUrl" />
+        <result column="content" property="content" />
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <insert id="upload" parameterType="icu.pymiliblog.teachingmanagementplatform.pojo.notification.NotificationPojo" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO notifications (title, img_url, content)
+        VALUES (#{title}, #{imgUrl}, #{content})
+    </insert>
+
+    <select id="find" resultType="icu.pymiliblog.teachingmanagementplatform.pojo.notification.NotificationPojo">
+        SELECT id, title, img_url AS imgUrl, content, created_at AS createdAt FROM notifications
+        <where>
+            <if test="id != null || id != 0">
+                AND id = #{id}
+            </if>
+            <if test="title != null">
+                AND title = #{title}
+            </if>
+            <if test="imgUrl != null">
+                AND img_url = #{imgUrl}
+            </if>
+            <if test="content != null">
+                AND content = #{content}
+            </if>
+            <if test="createdAt != null">
+                AND created_at = #{createdAt}
+            </if>
+        </where>
+    </select>
+    <select id="findRange" resultType="icu.pymiliblog.teachingmanagementplatform.pojo.notification.NotificationPojo">
+        SELECT
+            id, title,
+            img_url AS imgUrl,
+            content,
+            created_at AS createdAt
+        FROM notifications LIMIT #{start}, #{number};
+    </select>
+    <select id="findAll" resultType="icu.pymiliblog.teachingmanagementplatform.pojo.notification.NotificationPojo">
+        SELECT
+            id, title,
+            img_url AS imgUrl,
+            content,
+            created_at AS createdAt
+        FROM notifications;
+    </select>
+</mapper>

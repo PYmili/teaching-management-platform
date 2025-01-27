@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="icu.pymiliblog.teachingmanagementplatform.mapper.EmployeeMapper">
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="icu.pymiliblog.teachingmanagementplatform.pojo.employee.EmployeePojo">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="department_id" property="departmentId"/>
+        <result column="phone" property="phone"/>
+        <result column="email" property="email"/>
+        <result column="qq" property="qq"/>
+        <result column="wechat" property="wechat"/>
+        <result column="is_available" property="available"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+    <select id="findById" resultType="icu.pymiliblog.teachingmanagementplatform.pojo.employee.EmployeePojo">
+        SELECT
+            id, name,
+            department_id AS departmentId,
+            phone, email, qq, wechat, available,
+            created_at AS createdAt,
+            updated_at AS updatedAt
+        FROM employees WHERE id = #{id};
+    </select>
+    <select id="findRange" resultType="icu.pymiliblog.teachingmanagementplatform.pojo.employee.EmployeePojo">
+        SELECT
+            id, name,
+            department_id AS departmentId,
+            phone, email, qq, wechat, available,
+            created_at AS createdAt,
+            updated_at AS updatedAt
+        FROM employees LIMIT #{start}, #{number};
+    </select>
+    <insert id="insertEmployee" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO employees
+            (name, department_id, phone, email, qq, wechat, available)
+        VALUES
+            (#{name}, #{departmentId}, #{phone}, #{email}, #{qq}, #{wechat}, #{available})
+    </insert>
+    <select id="findAllEmployees" resultType="icu.pymiliblog.teachingmanagementplatform.pojo.employee.EmployeePojo">
+        SELECT
+            id, name,
+            department_id AS departmentId,
+            phone, email, qq, wechat, available,
+            created_at AS createdAt,
+            updated_at AS updatedAt
+        FROM employees;
+    </select>
+</mapper>

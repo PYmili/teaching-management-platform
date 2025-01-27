@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="icu.pymiliblog.teachingmanagementplatform.mapper.DepartmentMapper">
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="icu.pymiliblog.teachingmanagementplatform.pojo.department.DepartmentPojo">
+        <id column="id" property="id"/>
+        <result column="department_name" property="departmentName"/>
+        <result column="parent_department_id" property="parentDepartmentId"/>
+        <result column="department_description" property="departmentDescription"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="updated_at" property="updatedAt"/>
+    </resultMap>
+    <select id="findById" resultType="icu.pymiliblog.teachingmanagementplatform.pojo.department.DepartmentPojo">
+        SELECT
+            id, department_name AS departmentName,
+            parent_department_id AS parentDepartmentId,
+            department_description AS departmentDescription,
+            created_at AS createdAt,
+            updated_at AS updatedAt
+        FROM departments WHERE id = #{id};
+    </select>
+    <select id="list" resultType="icu.pymiliblog.teachingmanagementplatform.pojo.department.DepartmentPojo">
+        SELECT
+            id, department_name AS departmentName,
+            parent_department_id AS parentDepartmentId,
+            department_description AS departmentDescription,
+            created_at AS createdAt,
+            updated_at AS updatedAt
+        FROM departments;
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO departments
+            (department_name, parent_department_id, department_description)
+        VALUES (#{departmentName}, #{parentDepartmentId}, #{departmentDescription});
+    </insert>
+</mapper>

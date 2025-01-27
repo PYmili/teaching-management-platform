@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="icu.pymiliblog.teachingmanagementplatform.mapper.ResourceMapper">
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="icu.pymiliblog.teachingmanagementplatform.pojo.resource.ResourcePojo">
+        <id column="id" property="id"/>
+        <result column="file_name" property="fileName"/>
+        <result column="content_type" property="contentType"/>
+        <result column="file_size" property="fileSize"/>
+        <result column="data" property="data"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <insert id="upload" parameterType="icu.pymiliblog.teachingmanagementplatform.pojo.resource.ResourcePojo" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO resources (file_name, content_type, file_size, data)
+        VALUES (#{fileName}, #{contentType}, #{fileSize}, #{data})
+    </insert>
+    <select id="findByPojo" resultType="icu.pymiliblog.teachingmanagementplatform.pojo.resource.ResourcePojo">
+        SELECT
+            id,
+            data,
+            file_name AS fileName,
+            content_type AS contentType,
+            file_size AS fileSize,
+            updated_at AS updatedAt,
+            created_at AS createdAt
+        FROM resources
+        <where>
+            <if test="id != null and id != 0">
+                AND id = #{id}
+            </if>
+            <if test="fileName != null and fileName != ''">
+                AND file_name = #{fileName}
+            </if>
+            <if test="contentType != null and contentType != ''">
+                AND content_type = #{contentType}
+            </if>
+            <if test="fileSize != null and fileSize != 0">
+                AND file_size = #{fileSize}
+            </if>
+            <if test="updatedAt != null">
+                AND updated_at = #{updatedAt}
+            </if>
+            <if test="createdAt != null">
+                AND created_at = #{createdAt}
+            </if>
+        </where>
+    </select>
+</mapper>

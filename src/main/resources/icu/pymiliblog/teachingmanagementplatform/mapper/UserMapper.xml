@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="icu.pymiliblog.teachingmanagementplatform.mapper.UserMapper">
+    <!-- 结果映射 -->
+    <resultMap id="BaseResultMap" type="icu.pymiliblog.teachingmanagementplatform.pojo.user.UserPojo">
+        <id column="id" property="id"/>
+        <result column="username" property="username"/>
+        <result column="password_hash" property="passwordHash"/>
+        <result column="salt" property="salt"/>
+        <result column="phone_number" property="phoneNumber"/>
+        <result column="email" property="email"/>
+        <result column="qq_id" property="qqId"/>
+        <result column="updated_at" property="updatedAt"/>
+        <result column="created_at" property="createdAt"/>
+    </resultMap>
+
+    <insert id="register" parameterType="icu.pymiliblog.teachingmanagementplatform.pojo.user.UserPojo" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO users (
+            username,
+            password_hash,
+            salt,
+            phone_number,
+            email,
+            qq_id,
+            updated_at
+        )
+        VALUES (#{username}, #{passwordHash}, #{salt}, #{phoneNumber}, #{email}, #{qqId}, NOW())
+    </insert>
+    <select id="find" resultType="icu.pymiliblog.teachingmanagementplatform.pojo.user.UserPojo">
+        SELECT
+        id, username,
+        password_hash AS passwordHash,
+        salt,
+        phone_number AS phoneNumber,
+        email, qq_id AS qqId,
+        updated_at AS updatedAt,
+        created_at AS createdAt
+        FROM users
+        <where>
+            <if test="id != null and id != 0">
+                AND id = #{id}
+            </if>
+            <if test="username != null">
+                AND username = #{username}
+            </if>
+            <if test="passwordHash != null">
+                AND password_hash = #{passwordHash}
+            </if>
+            <if test="salt != null">
+                AND salt = #{salt}
+            </if>
+            <if test="phoneNumber != null">
+                AND phone_number = #{phoneNumber}
+            </if>
+            <if test="email != null">
+                AND email = #{email}
+            </if>
+            <if test="qqId != null">
+                AND qq_id = #{qqId}
+            </if>
+            <if test="updatedAt != null">
+                AND updated_at = #{updatedAt}
+            </if>
+            <if test="createdAt != null">
+                AND created_at = #{createdAt}
+            </if>
+        </where>
+    </select>
+</mapper>
