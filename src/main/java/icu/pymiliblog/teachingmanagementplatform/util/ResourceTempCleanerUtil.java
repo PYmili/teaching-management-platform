@@ -1,8 +1,6 @@
 package icu.pymiliblog.teachingmanagementplatform.util;
 
-import icu.pymiliblog.teachingmanagementplatform.controller.ResourceController;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
@@ -11,11 +9,17 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * 资源缓存清理器工具类
+ * @author PYmili
+ */
+@Slf4j
 @Component
 public class ResourceTempCleanerUtil {
 
-    private static final Logger logger = LoggerFactory.getLogger(ResourceController.class);
+    // 缓存文件队列
     private final ConcurrentLinkedQueue<File> tempFiles = new ConcurrentLinkedQueue<>();
+    // Scheduled service 进程池
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
 
     public ResourceTempCleanerUtil() {
@@ -41,12 +45,12 @@ public class ResourceTempCleanerUtil {
         while ((file = tempFiles.poll()) != null) {
             try {
                 if (!file.delete()) {
-                    logger.warn("无法删除临时文件: {}", file.getAbsolutePath());
+                    log.warn("无法删除临时文件: {}", file.getAbsolutePath());
                 } else {
-                    logger.info("文件已被删除: {}", file.getAbsolutePath());
+                    log.info("文件已被删除: {}", file.getAbsolutePath());
                 }
             } catch (Exception e) {
-                logger.error("删除临时文件时出错: {}", file.getAbsolutePath(), e);
+                log.error("删除临时文件时出错: {}", file.getAbsolutePath(), e);
             }
         }
     }

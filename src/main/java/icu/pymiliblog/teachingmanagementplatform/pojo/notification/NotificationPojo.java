@@ -2,6 +2,10 @@ package icu.pymiliblog.teachingmanagementplatform.pojo.notification;
 
 import java.util.Date;
 
+/**
+ * 通知 POJO
+ * @author PYmili
+ */
 public class NotificationPojo {
     private Integer id;
     private String title;

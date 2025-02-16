@@ -26,7 +26,7 @@
             updated_at AS updatedAt
         FROM employees WHERE id = #{id};
     </select>
-    <select id="findRange" resultType="icu.pymiliblog.teachingmanagementplatform.pojo.employee.EmployeePojo">
+    <select id="findByRange" resultType="icu.pymiliblog.teachingmanagementplatform.pojo.employee.EmployeePojo">
         SELECT
             id, name,
             department_id AS departmentId,
@@ -35,13 +35,13 @@
             updated_at AS updatedAt
         FROM employees LIMIT #{start}, #{number};
     </select>
-    <insert id="insertEmployee" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertByEmployee" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO employees
             (name, department_id, phone, email, qq, wechat, available)
         VALUES
             (#{name}, #{departmentId}, #{phone}, #{email}, #{qq}, #{wechat}, #{available})
     </insert>
-    <select id="findAllEmployees" resultType="icu.pymiliblog.teachingmanagementplatform.pojo.employee.EmployeePojo">
+    <select id="list" resultType="icu.pymiliblog.teachingmanagementplatform.pojo.employee.EmployeePojo">
         SELECT
             id, name,
             department_id AS departmentId,

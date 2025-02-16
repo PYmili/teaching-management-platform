@@ -6,10 +6,7 @@ import icu.pymiliblog.teachingmanagementplatform.pojo.user.UserPojo;
 import icu.pymiliblog.teachingmanagementplatform.pojo.user.UserRequestPojo;
 import icu.pymiliblog.teachingmanagementplatform.util.JwtUtil;
 import icu.pymiliblog.teachingmanagementplatform.util.PasswordUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -17,13 +14,27 @@ import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Objects;
 
+/**
+ * 用户 Service
+ * @author PYmili
+ */
+@Slf4j
 @Service
 public class UserService {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
-    @Autowired
-    private UserMapper userMapper;
+    // 操作用户的Mapper
+    private final UserMapper userMapper;
 
+    public UserService(UserMapper userMapper) {
+        this.userMapper = userMapper;
+    }
+
+    /**
+     * 注册用户
+     * @param requestPojo {@link UserRequestPojo}
+     * @return {@link ResponseEntity}
+     * @throws NoSuchAlgorithmException
+     */
     public ResponseEntity<ApiResponse<Object>> register(UserRequestPojo requestPojo)
             throws NoSuchAlgorithmException {
         UserPojo userPojo = new UserPojo();
@@ -38,21 +49,22 @@ public class UserService {
         String passwordHash = PasswordUtil.hashPassword(requestPojo.getPassword(), salt);
         userPojo.setPasswordHash(passwordHash);
         // mapper
-        boolean registeredResult = userMapper.register(userPojo);
+        boolean registeredResult = userMapper.upload(userPojo);
         if (!registeredResult) {
-            return new ResponseEntity<>(
-                    ApiResponse.not_found("注册失败！"),
-                    HttpStatus.NOT_FOUND
-            );
+            return ApiResponse.not_found("注册失败！");
         }
+
         // 生成jwt
         String jwt = JwtUtil.createJwt(userPojo.getUsername(), userPojo.getId());
-        return new ResponseEntity<>(
-                ApiResponse.ok(jwt),
-                HttpStatus.OK
-        );
+        return ApiResponse.ok(jwt);
     }
 
+    /**
+     * 用户登录
+     * @param requestPojo {@link UserRequestPojo}
+     * @return {@link ResponseEntity}
+     * @throws NoSuchAlgorithmException
+     */
     public ResponseEntity<ApiResponse<Object>> login(UserRequestPojo requestPojo)
             throws NoSuchAlgorithmException {
         UserPojo userPojo = new UserPojo();
@@ -60,28 +72,22 @@ public class UserService {
         userPojo.setEmail(requestPojo.getEmail());
         userPojo.setQqId(requestPojo.getQqId());
         userPojo.setUsername(requestPojo.getUsername());
-        logger.info("[UserService] [login] find userPojo: {}", userPojo);
+        log.info("[UserService] [login] find userPojo: {}", userPojo);
         // 查找用户是否存在
-        List<UserPojo> findResult = userMapper.find(userPojo);
+        List<UserPojo> findResult = userMapper.findByPojo(userPojo);
         if (findResult.isEmpty()) {
-            return new ResponseEntity<>(
-                    ApiResponse.not_found("用户不存在！"),
-                    HttpStatus.NOT_FOUND
-            );
+            return ApiResponse.not_found("用户不存在！");
         }
-        logger.info("[UserService] [login] find result: {}", findResult);
+        log.info("[UserService] [login] find result: {}", findResult);
 
         // 处理密码
         String passwordHash = requestPojo.getPassword();
         String salt = findResult.getFirst().getSalt();
-        logger.info("[UserService] [login] request password value: {} ", passwordHash);
+        log.info("[UserService] [login] request password value: {} ", passwordHash);
         String hashPassword = PasswordUtil.hashPassword(passwordHash, salt);
-        logger.info("[UserService] [login] hash password value: {}", hashPassword);
+        log.info("[UserService] [login] hash password value: {}", hashPassword);
         if (!Objects.equals(findResult.getFirst().getPasswordHash(), hashPassword)) {
-            return new ResponseEntity<>(
-                    ApiResponse.not_found("用户或密码错误！"),
-                    HttpStatus.NOT_FOUND
-            );
+            return ApiResponse.not_found("用户或密码错误！");
         }
 
         // 生成jwt
@@ -96,16 +102,10 @@ public class UserService {
         boolean updatePasswordHash = userMapper.updatePasswordHash(findResult.getFirst().getId(),
                 newPasswordHash);
         if (!updateSaltResult || !updatePasswordHash) {
-            logger.warn("更新 salt，SecretKey，password_hash 时失败！ userPojo: {}", userPojo);
-            return new ResponseEntity<>(
-                    ApiResponse.not_found("系统错误！"),
-                    HttpStatus.INTERNAL_SERVER_ERROR
-            );
+            log.warn("更新 salt，SecretKey，password_hash 时失败！ userPojo: {}", userPojo);
+            return ApiResponse.not_found("系统错误！");
         }
 
-        return new ResponseEntity<>(
-                ApiResponse.ok(jwt),
-                HttpStatus.OK
-        );
+        return ApiResponse.ok(jwt);
     }
 }

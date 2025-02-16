@@ -17,7 +17,7 @@
         <result column="created_at" property="createdAt"/>
     </resultMap>
 
-    <insert id="register" parameterType="icu.pymiliblog.teachingmanagementplatform.pojo.user.UserPojo" useGeneratedKeys="true" keyProperty="id">
+    <insert id="upload" parameterType="icu.pymiliblog.teachingmanagementplatform.pojo.user.UserPojo" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO users (
             username,
             password_hash,
@@ -29,7 +29,7 @@
         )
         VALUES (#{username}, #{passwordHash}, #{salt}, #{phoneNumber}, #{email}, #{qqId}, NOW())
     </insert>
-    <select id="find" resultType="icu.pymiliblog.teachingmanagementplatform.pojo.user.UserPojo">
+    <select id="findByPojo" resultType="icu.pymiliblog.teachingmanagementplatform.pojo.user.UserPojo">
         SELECT
         id, username,
         password_hash AS passwordHash,

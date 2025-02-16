@@ -6,9 +6,7 @@ import icu.pymiliblog.teachingmanagementplatform.pojo.resource.ResourceRequestPo
 import icu.pymiliblog.teachingmanagementplatform.service.ResourceService;
 import icu.pymiliblog.teachingmanagementplatform.util.ResourceTempCleanerUtil;
 import icu.pymiliblog.teachingmanagementplatform.util.ResourceUtil;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
@@ -22,15 +20,18 @@ import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/resource")
 public class ResourceController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ResourceController.class);
-    @Autowired
-    private ResourceService resourceService;
-    @Autowired
-    private ResourceTempCleanerUtil resourceTempCleanerUtil;
+    private final ResourceService resourceService;
+    private final ResourceTempCleanerUtil resourceTempCleanerUtil;
+
+    public ResourceController(ResourceService resourceService, ResourceTempCleanerUtil resourceTempCleanerUtil) {
+        this.resourceService = resourceService;
+        this.resourceTempCleanerUtil = resourceTempCleanerUtil;
+    }
 
     /**
      * 上传资源文件
@@ -40,17 +41,15 @@ public class ResourceController {
      */
     @RequestMapping(value = "/upload", method = RequestMethod.POST)
     public ResponseEntity<ApiResponse<Object>> upload(@ModelAttribute ResourceRequestPojo requestPojo) throws IOException {
-        logger.info("url = /upload, requestPojo = {}", requestPojo);
+        log.info("url = /upload, requestPojo = {}", requestPojo);
         // 处理上传的资源数据
         MultipartFile multipartFile = requestPojo.getMultipartFile();
         if (multipartFile == null || multipartFile.isEmpty()) {
-            return new ResponseEntity<>(new ApiResponse<>(404, "文件内容为空"),
-                    HttpStatus.NOT_FOUND);
+            return ApiResponse.not_found("文件内容为空");
         } else if (requestPojo.getFileName() == null ||
                 requestPojo.getFileSize() == 0 ||
                 requestPojo.getContentType().isEmpty()) {
-            return new ResponseEntity<>(new ApiResponse<>(404, "请求参数残缺！"),
-                    HttpStatus.NOT_FOUND);
+            return ApiResponse.not_found("请求参数残缺！");
         }
         return resourceService.upload(requestPojo);
     }
@@ -66,7 +65,7 @@ public class ResourceController {
     public ResponseEntity<Object> find(
             @RequestParam(value = "id", required = false) Long id,
             @RequestParam(value = "file_name", required = false) String name) throws IOException {
-        logger.info("url = /find, id = {}, file_name = {}", id, name);
+        log.info("url = /find, id = {}, file_name = {}", id, name);
         ResourcePojo resourcePojo = new ResourcePojo();
         // 请求数据验证
         if (id == null && (name == null || name.isEmpty())) {
@@ -74,14 +73,18 @@ public class ResourceController {
         }
         if (id != null && id == 0) resourcePojo.setFileName(name);
         if (name != null && !name.isEmpty()) resourcePojo.setId(id);
+
         // 数据库查询
         List<ResourcePojo> resultList = resourceService.findByPojo(resourcePojo);
         if (resultList.isEmpty()) return new ResponseEntity<>(
                 ApiResponse.not_found("未找到此文件！"), HttpStatus.OK);
+
         // 通过ResourceUtil工具类将资源缓存
         File tempFile = ResourceUtil.createTempFile(resultList.getFirst());
         if (tempFile == null) return new ResponseEntity<>(
                 ApiResponse.not_found("服务器错误！"), HttpStatus.NOT_FOUND);
+
+        // 数据缓存
         Resource resource = new FileSystemResource(tempFile);
         // 清理当前缓存资源
         resourceTempCleanerUtil.addFileForDeletion(tempFile);

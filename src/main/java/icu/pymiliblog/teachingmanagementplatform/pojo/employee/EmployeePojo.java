@@ -2,6 +2,10 @@ package icu.pymiliblog.teachingmanagementplatform.pojo.employee;
 
 import java.util.Date;
 
+/**
+ * 员工 POJO
+ * @author PYmili
+ */
 public class EmployeePojo {
     private Integer id;
     private String name;

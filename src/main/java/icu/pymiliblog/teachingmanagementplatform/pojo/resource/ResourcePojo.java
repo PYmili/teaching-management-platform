@@ -3,6 +3,10 @@ package icu.pymiliblog.teachingmanagementplatform.pojo.resource;
 import java.util.Arrays;
 import java.util.Date;
 
+/**
+ * 资源 POJO
+ * @author PYmili
+ */
 public class ResourcePojo {
     private Long id;
     private String fileName;

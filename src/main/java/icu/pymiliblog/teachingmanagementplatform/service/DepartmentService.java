@@ -3,38 +3,56 @@ package icu.pymiliblog.teachingmanagementplatform.service;
 import icu.pymiliblog.teachingmanagementplatform.common.ApiResponse;
 import icu.pymiliblog.teachingmanagementplatform.mapper.DepartmentMapper;
 import icu.pymiliblog.teachingmanagementplatform.pojo.department.DepartmentPojo;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+/**
+ * 部门 Service
+ * @author PYmili
+ */
+@Slf4j
 @Service
 public class DepartmentService {
 
-    @Autowired
-    private DepartmentMapper departmentMapper;
+    // 操作部门的mapper
+    private final DepartmentMapper departmentMapper;
 
+    public DepartmentService(DepartmentMapper departmentMapper) {
+        this.departmentMapper = departmentMapper;
+    }
+
+    /**
+     * 通过id操作Mapper查找
+     * @param id {@link Integer}
+     * @return {@link ResponseEntity}
+     */
     public ResponseEntity<ApiResponse<Object>> findById(Integer id) {
         DepartmentPojo findResult = departmentMapper.findById(id);
         if (findResult == null) {
-            return new ResponseEntity<>(
-                    ApiResponse.not_found("未找到！"), HttpStatus.NOT_FOUND);
+            return ApiResponse.not_found("未找到！");
         }
-        return new ResponseEntity<>(ApiResponse.ok(findResult), HttpStatus.OK);
+        return ApiResponse.ok(findResult);
     }
 
+    /**
+     * 通过Mapper返回所有
+     * @return {@link ResponseEntity}
+     */
     public ResponseEntity<ApiResponse<Object>> list() {
-        return new ResponseEntity<>(
-                ApiResponse.ok(departmentMapper.list()), HttpStatus.OK);
+        return ApiResponse.ok(departmentMapper.list());
     }
 
-    public ResponseEntity<ApiResponse<Object>> insert(DepartmentPojo departmentPojo) {
-        boolean insertResult = departmentMapper.insert(departmentPojo);
+    /**
+     * 根据{@link DepartmentPojo}在Mapper中查找
+     * @param departmentPojo {@link DepartmentPojo}
+     * @return {@link ResponseEntity}
+     */
+    public ResponseEntity<ApiResponse<Object>> insertByPojo(DepartmentPojo departmentPojo) {
+        boolean insertResult = departmentMapper.insertByPojo(departmentPojo);
         if (!insertResult) {
-            return new ResponseEntity<>(
-                    ApiResponse.not_found("操作失败！"), HttpStatus.NOT_FOUND);
+            return ApiResponse.not_found("操作失败！");
         }
-        return new ResponseEntity<>(
-                ApiResponse.ok("成功！"), HttpStatus.OK);
+        return ApiResponse.ok("成功！");
     }
 }

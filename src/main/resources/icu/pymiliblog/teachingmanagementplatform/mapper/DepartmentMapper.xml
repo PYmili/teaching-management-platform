@@ -31,7 +31,7 @@
             updated_at AS updatedAt
         FROM departments;
     </select>
-    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertByPojo" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO departments
             (department_name, parent_department_id, department_description)
         VALUES (#{departmentName}, #{parentDepartmentId}, #{departmentDescription});

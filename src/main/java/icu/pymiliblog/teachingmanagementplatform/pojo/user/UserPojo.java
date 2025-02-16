@@ -2,6 +2,10 @@ package icu.pymiliblog.teachingmanagementplatform.pojo.user;
 
 import java.util.Date;
 
+/**
+ * 用户 POJO
+ * @author PYmili
+ */
 public class UserPojo {
     private Integer id;
     private String username;

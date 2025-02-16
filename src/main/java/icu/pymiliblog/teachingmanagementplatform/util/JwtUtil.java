@@ -1,13 +1,9 @@
 package icu.pymiliblog.teachingmanagementplatform.util;
 
-import icu.pymiliblog.teachingmanagementplatform.common.ApiResponse;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.security.SignatureException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.crypto.SecretKey;
 import java.security.Key;
@@ -17,15 +13,22 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * JWT的工具类
+ * @author PYmili
+ */
+@Slf4j
 public class JwtUtil {
 
     // 令牌有效期（毫秒）
     private static final long VALIDITY_PERIOD_MILLIS = 3600000; // 1小时
     // secret key
     private static final String secretKey = "0Fx9WeAzPOKrC26GDEIROVaapihmFYmeTk/YIKkcDLs=";
-    private static final Logger logger = LoggerFactory.getLogger(JwtUtil.class);
 
-    // 生成随机密钥
+    /**
+     * 生成随机密钥
+     * @return {@link String}
+     */
     public static String generateRandomKey() {
         SecureRandom random = new SecureRandom();
         byte[] keyBytes = new byte[32]; // 256位密钥
@@ -33,8 +36,13 @@ public class JwtUtil {
         return Base64.getEncoder().encodeToString(keyBytes);
     }
 
-    // 生成JWT
-    public static String createJwt(String username, int userId) {
+    /**
+     * 生成JWT
+     * @param username {@link String}
+     * @param userId int {@link Integer}
+     * @return {@link String}
+     */
+    public static String createJwt(String username, Integer userId) {
         long nowMillis = System.currentTimeMillis();
         Date now = new Date(nowMillis);
         Date exp = new Date(nowMillis + VALIDITY_PERIOD_MILLIS);
@@ -54,7 +62,11 @@ public class JwtUtil {
                 .compact();
     }
 
-    // 解析JWT
+    /**
+     * 解析JWT
+     * @param token {@link String}
+     * @return {@link Map}
+     */
     public static Map<String, Object> parseToken(String token) {
         SecretKey key = Keys.hmacShaKeyFor(Base64.getDecoder().decode(secretKey));
         Map<String, Object> result = new HashMap<>();
@@ -71,32 +83,46 @@ public class JwtUtil {
             return result;
         } catch (ExpiredJwtException e) {
             // 令牌已过期
-            return result;
+            throw new RuntimeException("Expired Jwt", e);
         } catch (UnsupportedJwtException e) {
             // 令牌格式不支持
-            // throw new RuntimeException("Unsupported JWT", e);
-            return result;
+            throw new RuntimeException("Unsupported JWT", e);
         } catch (MalformedJwtException e) {
             // 令牌格式错误
-            // throw new RuntimeException("Invalid JWT token", e);
-            return result;
+            throw new RuntimeException("Invalid JWT token", e);
         } catch (SignatureException e) {
             // 签名验证失败
-            // throw new RuntimeException("Invalid JWT token signature", e);
-            return result;
+            throw new RuntimeException("Invalid JWT token signature", e);
         } catch (IllegalArgumentException e) {
             // 令牌为空或null
-            // throw new RuntimeException("JWT token compact of handler are invalid", e);
-            return result;
+            throw new RuntimeException("JWT token compact of handler are invalid", e);
         }
     }
 
-    public static boolean verifyJwt(String jwt) {
-        Map<String, Object> jwtMap = JwtUtil.parseToken(jwt);
-        logger.info(jwtMap.toString());
-        return jwtMap.isEmpty();
+    /**
+     * 验证JWT
+     * @param auth {@link String}
+     * @return boolean
+     */
+    public static boolean verifyJwt(String auth) {
+        String jwt = extractJwt(auth);
+        if (jwt == null || jwt.isEmpty()) return false;
+        // parse jwt
+        try {
+            Map<String, Object> jwtMap = JwtUtil.parseToken(jwt);
+            log.info(jwtMap.toString());
+            return !jwtMap.isEmpty();
+        } catch (Exception e) {
+            log.error(e.toString());
+            return false;
+        }
     }
 
+    /**
+     * 解析JWT
+     * @param authorizationHeader {@link String}
+     * @return {@link String}
+     */
     public static String extractJwt(String authorizationHeader) {
         // 提取 JWT
         if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
@@ -105,6 +131,10 @@ public class JwtUtil {
         return authorizationHeader.substring(7); // 移除 "Bearer " 前缀
     }
 
+    /**
+     * 测试
+     * @author PYmili
+     */
     public static void test() {
         // 生成JWT
         String token = createJwt("admin", 1);

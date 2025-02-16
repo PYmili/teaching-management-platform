@@ -18,7 +18,7 @@
         VALUES (#{title}, #{imgUrl}, #{content})
     </insert>
 
-    <select id="find" resultType="icu.pymiliblog.teachingmanagementplatform.pojo.notification.NotificationPojo">
+    <select id="findByPojo" resultType="icu.pymiliblog.teachingmanagementplatform.pojo.notification.NotificationPojo">
         SELECT id, title, img_url AS imgUrl, content, created_at AS createdAt FROM notifications
         <where>
             <if test="id != null || id != 0">
@@ -38,7 +38,7 @@
             </if>
         </where>
     </select>
-    <select id="findRange" resultType="icu.pymiliblog.teachingmanagementplatform.pojo.notification.NotificationPojo">
+    <select id="findByRange" resultType="icu.pymiliblog.teachingmanagementplatform.pojo.notification.NotificationPojo">
         SELECT
             id, title,
             img_url AS imgUrl,
@@ -46,7 +46,7 @@
             created_at AS createdAt
         FROM notifications LIMIT #{start}, #{number};
     </select>
-    <select id="findAll" resultType="icu.pymiliblog.teachingmanagementplatform.pojo.notification.NotificationPojo">
+    <select id="list" resultType="icu.pymiliblog.teachingmanagementplatform.pojo.notification.NotificationPojo">
         SELECT
             id, title,
             img_url AS imgUrl,

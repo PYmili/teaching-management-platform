@@ -2,6 +2,10 @@ package icu.pymiliblog.teachingmanagementplatform.pojo.resource;
 
 import org.springframework.web.multipart.MultipartFile;
 
+/**
+ * 资源请求POJO
+ * @author PYmili
+ */
 public class ResourceRequestPojo {
     private String fileName;
     private String contentType;

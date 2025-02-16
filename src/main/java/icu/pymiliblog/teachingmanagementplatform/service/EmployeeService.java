@@ -5,12 +5,8 @@ import icu.pymiliblog.teachingmanagementplatform.common.ApiResponse;
 import icu.pymiliblog.teachingmanagementplatform.mapper.EmployeeMapper;
 import icu.pymiliblog.teachingmanagementplatform.pojo.employee.EmployeeExcel;
 import icu.pymiliblog.teachingmanagementplatform.pojo.employee.EmployeePojo;
-import icu.pymiliblog.teachingmanagementplatform.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
@@ -20,67 +16,91 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 员工 Service
+ * @author PYmili
+ */
+@Slf4j
 @Service
 public class EmployeeService {
 
-    private static final Logger logger = LoggerFactory.getLogger(EmployeeService.class);
-    @Autowired
-    private EmployeeMapper employeeMapper;
+    // 操作员工的mapper
+    private final EmployeeMapper employeeMapper;
 
-    public ResponseEntity<ApiResponse<Object>> findById(Integer id, String jwt) {
-        if (JwtUtil.verifyJwt(jwt)) {
-            return new ResponseEntity<>(
-                    ApiResponse.illegal(), HttpStatus.NOT_FOUND);
-        }
+    public EmployeeService(EmployeeMapper employeeMapper) {
+        this.employeeMapper = employeeMapper;
+    }
+
+    /**
+     * 通过id操作Mapper查找
+     * @param id {@link Integer}
+     * @return {@link ResponseEntity}
+     */
+    public ResponseEntity<ApiResponse<Object>> findById(Integer id) {
         EmployeePojo resultPojo = employeeMapper.findById(id);
         if (resultPojo == null) {
-            return new ResponseEntity<>(
-                    ApiResponse.not_found("未查找到！"), HttpStatus.NOT_FOUND);
+            return ApiResponse.not_found("未查找到！");
         }
-        return new ResponseEntity<>(ApiResponse.ok(resultPojo), HttpStatus.OK);
+        return ApiResponse.ok(resultPojo);
     }
 
-    public ResponseEntity<ApiResponse<Object>> findRange(Integer start, Integer number, String jwt) {
-        if (JwtUtil.verifyJwt(jwt)) {
-            return new ResponseEntity<>(
-                    ApiResponse.illegal(), HttpStatus.NOT_FOUND);
-        }
-        List<EmployeePojo> findResult = employeeMapper.findRange(start, number);
+    /**
+     * 通过start和number操作Mapper查找
+     * @param start {@link Integer}
+     * @param number {@link Integer}
+     * @return {@link ResponseEntity}
+     */
+    public ResponseEntity<ApiResponse<Object>> findByRange(Integer start, Integer number) {
+        List<EmployeePojo> findResult = employeeMapper.findByRange(start, number);
         if (findResult.isEmpty()) {
-            return new ResponseEntity<>(
-                    ApiResponse.not_found("未查找到！"), HttpStatus.NOT_FOUND);
+            return ApiResponse.not_found("未查找到！");
         }
-        return new ResponseEntity<>(ApiResponse.ok(findResult), HttpStatus.OK);
+        return ApiResponse.ok(findResult);
     }
 
+    /**
+     * 员工总数
+     * @return {@link ResponseEntity}
+     */
     public ResponseEntity<ApiResponse<Object>> total() {
-        return new ResponseEntity<>(ApiResponse.ok(employeeMapper.total()), HttpStatus.OK);
+        return ApiResponse.ok(employeeMapper.total());
     }
 
-    public ResponseEntity<ApiResponse<Object>> insertEmployee(EmployeePojo employeePojo) {
-        boolean inserted = employeeMapper.insertEmployee(employeePojo);
+    /**
+     * 通过{@link EmployeePojo}操作Mapper查找
+     * @param employeePojo {@link EmployeePojo}
+     * @return {@link ResponseEntity}
+     */
+    public ResponseEntity<ApiResponse<Object>> insertByEmployee(EmployeePojo employeePojo) {
+        boolean inserted = employeeMapper.insertByEmployee(employeePojo);
         if (!inserted) {
-            return new ResponseEntity<>(
-                    ApiResponse.not_found("创建用户失败！"), HttpStatus.NOT_FOUND);
+            return ApiResponse.not_found("创建用户失败！");
         }
-        return new ResponseEntity<>(
-                ApiResponse.ok("创建成功！"), HttpStatus.OK);
+        return ApiResponse.ok("创建成功！");
     }
 
-    public ResponseEntity<ApiResponse<Object>> removeById(Integer id) {
-        boolean removeResult = employeeMapper.removeEmployeeById(id);
+    /**
+     * 通过Id操作Mapper删除用户
+     * @param id {@link Integer}
+     * @return {@link ResponseEntity}
+     */
+    public ResponseEntity<ApiResponse<Object>> deleteById(Integer id) {
+        boolean removeResult = employeeMapper.deleteById(id);
         if (!removeResult) {
-            return new ResponseEntity<>(
-                    ApiResponse.not_found("删除失败！"), HttpStatus.NOT_FOUND);
+            return ApiResponse.not_found("删除失败！");
         }
-        return new ResponseEntity<>(
-                ApiResponse.ok("删除成功！"), HttpStatus.OK);
+        return ApiResponse.ok("删除成功！");
     }
 
+    /**
+     * 导出用户数据为Excel
+     * @param response {@link HttpServletResponse}
+     * @throws IOException
+     */
     public void exportEmployeesToExcel(HttpServletResponse response) throws IOException {
         // 1. 查询数据
-        List<EmployeePojo> employees = employeeMapper.findAllEmployees();
-        logger.info("exportEmployeesToExcel 查询到数据: {}", employees.size());
+        List<EmployeePojo> employees = employeeMapper.list();
+        log.info("exportEmployeesToExcel 查询到数据: {}", employees.size());
 
         // 2. 转换为 Excel 映射对象
         List<EmployeeExcel> excelData = employees.stream()

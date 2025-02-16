@@ -2,6 +2,10 @@ package icu.pymiliblog.teachingmanagementplatform.pojo.department;
 
 import java.util.Date;
 
+/**
+ * 部门 POJO
+ * @author PYmili
+ */
 public class DepartmentPojo {
     private Integer id;
     private String departmentName;

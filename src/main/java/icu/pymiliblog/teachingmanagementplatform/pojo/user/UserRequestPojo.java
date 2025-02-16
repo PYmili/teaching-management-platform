@@ -1,5 +1,9 @@
 package icu.pymiliblog.teachingmanagementplatform.pojo.user;
 
+/**
+ * 用户请求POJO
+ * @author PYmili
+ */
 public class UserRequestPojo {
     private String username;
     private String password;

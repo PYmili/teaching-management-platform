@@ -1,16 +1,35 @@
 package icu.pymiliblog.teachingmanagementplatform.common;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+/**
+ * 接口响应封装
+ * @author PYmili
+ * @param <T>
+ */
 public class ApiResponse<T> {
-    public int status;
-    public Object data;
+    private int code;
+    private String msg;
+    private Object data;
+
+    public ApiResponse() {}
+
+    public ApiResponse(int code, String msg, Object data) {
+        this.code = code;
+        this.msg = msg;
+        this.data = data;
+    }
 
     /**
      * 返回错误
      * @param data {@link Object}
      * @return {@link ApiResponse}
      */
-    public static ApiResponse<Object> not_found(Object data) {
-        return new ApiResponse<>(404, data);
+    public static ResponseEntity<ApiResponse<Object>> not_found(Object data) {
+        ApiResponse<Object> notFound = new ApiResponse<>(
+            HttpStatus.NOT_FOUND.value(), "not found", data);
+        return new ResponseEntity<>(notFound, HttpStatus.NOT_FOUND);
     }
 
     /**
@@ -18,27 +37,45 @@ public class ApiResponse<T> {
      * @param data {@link Object}
      * @return {@link ApiResponse}
      */
-    public static ApiResponse<Object> ok(Object data) {
-        return new ApiResponse<>(200, data);
+    public static ResponseEntity<ApiResponse<Object>> ok(Object data) {
+        ApiResponse<Object> success = new ApiResponse<>(
+                200, "success", data);
+        return new ResponseEntity<>(success, HttpStatus.OK);
     }
 
-    public static ApiResponse<Object> illegal() {
+    /**
+     * 服务器错误
+     * @param data {@link Object}
+     * @return {@link ResponseEntity}
+     */
+    public static ResponseEntity<ApiResponse<Object>> error(Object data) {
+        ApiResponse<Object> error = new ApiResponse<>(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(), "error", data);
+        return new ResponseEntity<>(error, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * 非法请求
+     * @return {@link ResponseEntity}
+     */
+    public static ResponseEntity<ApiResponse<Object>> illegal() {
         return ApiResponse.not_found("非法请求！");
     }
 
-    public ApiResponse() {}
-
-    public ApiResponse(int status, Object data) {
-        this.status = status;
-        this.data = data;
+    public int getCode() {
+        return code;
     }
 
-    public int getStatus() {
-        return status;
+    public void setCode(int code) {
+        this.code = code;
     }
 
-    public void setStatus(int status) {
-        this.status = status;
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String msg) {
+        this.msg = msg;
     }
 
     public Object getData() {
@@ -52,7 +89,8 @@ public class ApiResponse<T> {
     @Override
     public String toString() {
         return "ApiResponse{" +
-                "status=" + status +
+                "code=" + code +
+                ", msg='" + msg + '\'' +
                 ", data=" + data +
                 '}';
     }
